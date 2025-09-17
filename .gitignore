@@ -1,0 +1,18 @@
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+venv/
+
+# IDE/project files
+.vscode/
+.env
+*.log
+
+# Data/model files (optional)
+*.csv
+*.pkl
+*.h5
+*.npy
