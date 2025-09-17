@@ -54,3 +54,4 @@ class DataConfig:
     n_unit_links    : Tuple[int, ...] = (50, 25, 10)
     add_zero_los_frac   : float = 0.10
     n_dimensions    : int = 3
+    dropout_rate    : float = 0.05

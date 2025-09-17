@@ -152,8 +152,6 @@ def kl_divergence(mu: tf.Tensor,
 
 
 
-
-
 # ---------------------------------- VAE ---------------------------------- #
 
 class Vae(tfk.Model):
@@ -364,7 +362,6 @@ class Vae(tfk.Model):
         return { metric.name: metric.result() for metric in self.metrics }
 
 
-    
     def test_step(self, inputs):
         """
             Custom evaluation logic for one batch.
