@@ -50,7 +50,7 @@ class VaeConfig(ModelConfig):
 
 
 
-_CONFIGS = {"vae": VaeConfig, }
+CONFIGS = {"vae": VaeConfig, }
 
 def get_config(model_type: str) -> ModelConfig:
     """
@@ -66,6 +66,6 @@ def get_config(model_type: str) -> ModelConfig:
     -------
     """
     model_type = model_type.lower()
-    try: return _CONFIGS[model_type]()
+    try: return CONFIGS[model_type]()
     except KeyError: raise ValueError(f"Unknown model_type '{model_type}', "
                                       f"must be one of {VALID_MODELS}")
