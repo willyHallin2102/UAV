@@ -208,8 +208,8 @@ class Vae(tfk.Model):
         self.n_data = int(n_data) 
         self.n_conditions = int(n_conditions)
 
-        self.encoder_layers = tuple(int(u) for u in encoder_layers)
-        self.decoder_layers = tuple(int(u) for u in decoder_layers)
+        self.encoder_layers = tuple(int(layer) for layer in encoder_layers)
+        self.decoder_layers = tuple(int(layer) for layer in decoder_layers)
 
         self.min_variance = float(min_variance)
         self.dropout_rate = float(dropout_rate)
