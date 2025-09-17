@@ -23,6 +23,7 @@ class AngleIndex:
 
     N_ANGLES : Final[int] = 4
 
+
 # ----------------------------------------------------------------------------------
 #   Link State, Indexing the Communication Link Status
 # ----------------------------------------------------------------------------------
@@ -33,6 +34,7 @@ class LinkState:
     NLOS    = 2
 
     N_STATES : Final[int] = 3
+
 
 # ----------------------------------------------------------------------------------
 #   Data Config: Collection of Environmental Parameters

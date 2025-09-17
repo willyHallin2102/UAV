@@ -57,10 +57,13 @@ def get_config(model_type: str) -> ModelConfig:
     Return the configuration object for a given model type.
 
     Args:
+    -----
         model_type: Name of the model (e.g., "vae").
 
     Raises:
+    -------
         ValueError: If model_type is not supported.
+    -------
     """
     model_type = model_type.lower()
     try: return _CONFIGS[model_type]()
