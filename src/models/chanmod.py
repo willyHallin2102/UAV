@@ -3,7 +3,7 @@ import numpy as np
 from pathlib import Path
 from src.config.data import DataConfig
 from src.models.link import LinkStatePredictor
-# from src.models.path import PathModel
+from src.models.path import PathModel
 
 from typing import Union
 
@@ -29,4 +29,12 @@ class ChannelModel:
             n_unit_links=config.n_unit_links,
             add_zero_los_frac=config.add_zero_los_frac,
             dropout_rate=config.dropout_rate
+        )
+
+        self.path = PathModel(
+            directory=self.directory/model_type.lower(),
+            model_type=model_type,
+            rx_types=config.rx_types,
+            n_max_paths=config.n_max_paths,
+            max_pathloss=config.max_pathloss
         )

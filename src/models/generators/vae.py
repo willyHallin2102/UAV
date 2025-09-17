@@ -41,7 +41,7 @@ import tensorflow as tf
 tfk = tf.keras
 tfkl = tfk.layers
 
-from src.models.utils.helpers import (
+from src.models.utilities.helpers import (
     extract_inputs, set_initialization,
     SplitSortLayer
 )
