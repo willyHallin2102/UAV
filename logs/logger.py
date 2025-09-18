@@ -1,51 +1,55 @@
 """
-    logs/logger.py
-    --------------
-    Logger is intended as abstraction from redefine logging 
-    information within multiple scripts, instead this is 
-    aiming to provide a consistent logging structure throughout
-    the project.
 """
+
 import logging
+from logging.handlers import RotatingFileHandler
+
 import sys
 import os
 
 from pathlib import Path
 from datetime import datetime
-from logging.handlers import RotatingFileHandler
 from typing import Optional, Union
 
 
+# Root directory: where THIS file (logs.logger.py) is located
+ROOT_DIRECTORY  : Path = Path(__file__).resolve().parent
+DIRECTORY       : Path = ROOT_DIRECTORY / "history"
+
 
 def setup_logging(
-    logger_directory    : Union[str, Path] = "logs",
-    logger_level        : str = "INFO",
+    logger_directory    : Union[str, Path] = "dir",
+    logger_level        : str   = "INFO",
     logger_name         : Optional[str] = None,
-    max_bytes           : int = 5 * 1024 * 1024, # 5MB
-    backup_count        : int = 5
+    max_bytes           : int   = 5 * 1024 * 1024,  # 5MB
+    backup_count        : int   = 5
 ) -> logging.Logger:
     """
-        Configure logging with console + rotating file handlers.
+        Configurations logging with console + rotating files 
+        to separate logs within `backup_count` files to 
+        sequentially save the logs. The logs will always be 
+        stored in `<logs/logger.py>/"history/..."`.
 
         Args:
         -----
-            logging_directory:  Directory where the logs are stored
-            logging_level:  Logging-Level, (_verbosity_) for the 
-                            amount of feedback provided, such as
-                            (`"DEBUG"`, `"INFO"`, `"WARNING"`, `"ERROR"`).
-            logging_name:   Optional custom log filename. If default at 
-                            `None`, the timestamped file will be used.
-            max_bytes:  Max size (bytes) per log file before it start to
-                        rotate.
-            backup_count:   Number of rotated logs files to keep.
-        
-        Returns:
-            logger: Configured logger.
+            logger_directory:   Directory assign to within 
+            logger_level:   Logging verbosity, the amount of user
+                            feedback the logger should return during
+                            runtime, eligible options,
+                            "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
+            logger_name:    Custom log-name. If None, the timestamp will be
+                            assign.
+            max_bytes:  Max size (bytes) per log file before rotation.
+            backup_count:   Number of rotating logs files to keep.
     """
+    # Ensure logs go into history/<logger_directory>
+    logger_directory = DIRECTORY / Path(logger_directory).name
     os.makedirs(logger_directory, exist_ok=True)
-    if logger_name is None: 
+
+    if logger_name is None:
         logger_name = f"run_{datetime.now():%Y%m%d_%H%M%S}.log"
-    logger_file = Path(logger_directory) / logger_name
+    
+    logger_file = logger_directory / logger_name
 
     # Format for logging messages
     formatter = logging.Formatter(
@@ -53,38 +57,27 @@ def setup_logging(
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    # Console Handlers
+    # Console Handler
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(formatter)
 
-    # Rotating File Handler --
-    file_handler = RotatingFileHandler(
-        logger_file, maxBytes=max_bytes, backupCount=backup_count
-    )
+    file_handler = RotatingFileHandler(logger_file, maxBytes=max_bytes,
+                                       backupCount=backup_count)
     file_handler.setFormatter(formatter)
 
-    # Logger
+    # Logger 
     logger = logging.getLogger()
     logger.setLevel(getattr(logging, logger_level.upper(), logging.INFO))
-    
-    # This is essential for avoid duplicate logs, if re-called
-    logger.handlers.clear()
+    logger.handlers.clear() # In case Recall, don't duplicate logs
     logger.addHandler(console_handler)
     logger.addHandler(file_handler)
 
-    logger.info(f"Logging Initialized. Log File: `{logger_file}`")
+    logger.info(f"Logging initialized. Log File: `{logger_file}`")
     return logger
 
 
 def get_logger(name: str) -> logging.Logger:
-    """
-        Retrieve a logger for a specific module.
-        Example:
-        --------
-            >>> logger = get_logger(__name__)
-        --------
-        This `(__name__)` refer to the module, hence the logger 
-        getting defined based on the module name.
-    """
+    # """
+    #     Retrieve a logger for a specific module.
+    # """
     return logging.getLogger(name)
-
