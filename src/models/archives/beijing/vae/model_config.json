@@ -1,1 +1,0 @@
-{"n_latent": 10, "n_data": 120, "n_conditions": 5, "encoder_layers": [200, 80], "decoder_layers": [80, 200], "min_variance": 0.0001, "dropout_rate": 0.1, "beta": 0.5316429138183594, "beta_annealing_step": 100000, "kl_warmup_steps": 80, "init_kernel_std": 10.0, "init_bias_std": 10.0, "n_sort": 20}

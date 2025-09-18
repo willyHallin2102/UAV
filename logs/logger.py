@@ -1,4 +1,27 @@
 """
+    logs/logger.py
+    --------------
+    This module contains a unified logging setup for this project. 
+    It ensures that all logs messages are written in console and 
+    rotating logs files, under `<project_root/logs/history>/...`
+
+    Features:
+    ---------
+    - Console + rotating file logging
+    - timestamped default filenames
+    - automatic directory creation within `../history`
+    - avoid duplicating logs automatically (regardless of recalls)
+
+    Examples:
+    ---------
+        >>> from logs.logger import setup_logger, get_logger
+        >>> setup_logging("directory", logger_level="DEBUG")
+        >>> logger = get_logger(__name__)
+        >>> log.info("Data pipeline started")
+        >>> log.debug("Custom debug message `here`")
+    
+    Logs will always be stored under:
+        `<project_root>/logs/history/directory/run_YYYYMMDD_HHMMSS.log`
 """
 
 import logging
@@ -25,22 +48,27 @@ def setup_logging(
     backup_count        : int   = 5
 ) -> logging.Logger:
     """
-        Configurations logging with console + rotating files 
-        to separate logs within `backup_count` files to 
-        sequentially save the logs. The logs will always be 
-        stored in `<logs/logger.py>/"history/..."`.
-
+        Configure logging with console + rotating file handlers.
+        All logs are written to:
+            `<logs/logger.py>/history/<logger_directory>`
+        
         Args:
-        -----
-            logger_directory:   Directory assign to within 
-            logger_level:   Logging verbosity, the amount of user
-                            feedback the logger should return during
-                            runtime, eligible options,
-                            "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
-            logger_name:    Custom log-name. If None, the timestamp will be
-                            assign.
-            max_bytes:  Max size (bytes) per log file before rotation.
-            backup_count:   Number of rotating logs files to keep.
+            logger_directory:   sub-directory under `history/` 
+                                where logs will be stored.
+            logger_level:   Logging verbosity . One of
+                            `"DEBUG"`, ..., `"CRITICAL"`
+            logger_name:    User-defined filename for the log
+                            if None, a timestamped name 
+                            (`run_YYYYMMDD_HHMMSS.log`) will
+                            be generated.
+            max_bytes:  Maximum size (bytes) of each log file
+                        before rotation begins.
+            backup_count:   Number of maximal rotational log
+                            files to keep, then it drops logs.
+        
+        Returns:
+        --------
+        logging.Logger: The logger instance configured with handlers
     """
     # Ensure logs go into history/<logger_directory>
     logger_directory = DIRECTORY / Path(logger_directory).name
@@ -77,7 +105,23 @@ def setup_logging(
 
 
 def get_logger(name: str) -> logging.Logger:
-    # """
-    #     Retrieve a logger for a specific module.
-    # """
+    """
+        Retrieve a logger for a specific module.
+
+        Typically called inside each script/module:
+        Example:
+        --------
+            >>> from logs.logger import get_logger
+            >>> log = get_logger(__name__)
+            >>> log.debug("Debugging this module...")
+
+        Args:
+        -----
+        name:   The module name, usually `__name__`.
+
+        Returns:
+        --------
+            logging.Logger: Logger scoped to the provided name.
+        --------
+    """
     return logging.getLogger(name)
