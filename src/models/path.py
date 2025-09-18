@@ -195,45 +195,6 @@ class PathModel:
         self.delay_scale = 1.0
 
 
-    # def _prepare_dataset(self,
-    #     data        : Dict[str, np.ndarray],
-    #     batch_size  : int,
-    #     fit         : bool = False
-    # ) -> tf.data.Dataset:
-    #     """
-    #     """
-    #     link_state = data["link_state"]
-    #     valid_mask = (link_state != LinkState.NO_LINK)
-    #     if not np.any(valid_mask): 
-    #         raise ValueError("No valid links found in input data")
-        
-    #     # Filter data
-    #     idx = np.flatnonzero(valid_mask)
-    #     dvec = np.asarray(data["dvec"][idx], dtype=np.float32)
-    #     rx = np.asarray(data["rx_type"][idx])
-    #     los = np.asarray(link_state[idx] == LinkState.LOS, dtype=np.float32)
-
-    #     try:
-    #         # Conditions
-    #         u = self._transform_conditions(dvec, rx, los, fit)
-
-    #         # Path - Data
-    #         pathloss = self._transform_pathloss(data["nlos_pl"][idx], fit)
-    #         angles = self._transform_angles(dvec, data["nlos_ang"][idx], 
-    #                                         data["nlos_pl"][idx])
-    #         delays = self._transform_delays(dvec, data["nlos_dly"][idx], fit)
-    #         x = np.concatenate([pathloss, angles, delays], axis=1).astype(np.float32)
-    #     except Exception as e:
-    #         raise RuntimeError(f"PathModel._prepare_dataset failed. "
-    #                            f"Shapes: dvec={dvec.shape}, rx={rx.shape}, "
-    #                            f"los={los.shape}. Error: {e}") from e
-
-    #     if u.shape[0] != x.shape[0]:
-    #         raise ValueError(f"Conditional / path sample mismatch: "
-    #                          f"{u.shape[0]} vs {x.shape[0]}")
-
-    #     dataset = tf.data.Dataset.from_tensor_slices((x, u))
-    #     return dataset.batch(batch_size).cache().prefetch(tf.data.AUTOTUNE)
 
     def _prepare_dataset(
         self,
@@ -315,36 +276,6 @@ class PathModel:
         return cond.astype(np.float32, copy=False)
 
 
-    # def _transform_data(self, 
-    #   dvec: np.ndarray, 
-    #   nlos_pathloss: np.ndarray, 
-    #   nlos_angles: np.ndarray, 
-    #   nlos_delays: np.ndarray, 
-    #   fit: bool = False
-    # ) -> np.ndarray:
-    #     """
-    #       Transform path data (pathloss, angles, delays) into model input tensor.
-    #       """
-    #     pathloss = self._transform_pathloss(nlos_pathloss, fit)
-    #     angles = self._transform_angles(dvec, nlos_angles, nlos_pathloss)
-    #     delays = self._transform_delays(dvec, nlos_delays, fit)
-
-    #     # Concatenate along feature axis
-    #     return np.hstack((pathloss, angles, delays)).astype(np.float32, copy=False)
-
-
-    # def _inverse_transform_data(self, dvec: np.ndarray, x: np.ndarray):
-    #     nmp = self.n_max_paths
-    #     n_angles = 4 * nmp
-    #     pathloss = x[:, :nmp]
-    #     angles = x[:, nmp:nmp + n_angles]
-    #     delays = x[:, nmp + n_angles:]
-    #     return (
-    #         self._inverse_transform_pathloss(pathloss),
-    #         self._inverse_transform_angles(dvec, angles),
-    #         self._inverse_transform_delays(dvec, delays)
-    #     )
-
 
     def _transform_data(
         self,
@@ -402,72 +333,6 @@ class PathModel:
     
 
     # --------------------------- Angles transformation --------------------------- #
-
-    # def _transform_angles(self,
-    #     dvec            : np.ndarray, 
-    #     nlos_angles     : np.ndarray, 
-    #     nlos_pathloss   : np.ndarray
-    # ) -> np.ndarray:
-    #     """
-    #     """
-    #     # Compute LOS angles
-    #     _, los_aoa_phi, los_aoa_theta = cartesian_to_spherical(-dvec)
-    #     _, los_aod_phi, los_aod_theta = cartesian_to_spherical(dvec)
-
-    #     # Compute relative relative angles
-    #     aoa_phi_rel, aoa_theta_rel = sub_angles(nlos_angles[..., AngleIndex.AOA_PHI],
-    #                                             nlos_angles[..., AngleIndex.AOA_THETA],
-    #                                             los_aoa_phi[:, None],
-    #                                             los_aoa_theta[:, None])
-
-    #     aod_phi_rel, aod_theta_rel = sub_angles(nlos_angles[..., AngleIndex.AOD_PHI],
-    #                                             nlos_angles[..., AngleIndex.AOD_THETA],
-    #                                             los_aod_phi[:, None],
-    #                                             los_aod_theta[:, None])
-        
-    #     # Stack as [aoa_phi | aoa_theta | aod_phi | aod_theta], normalized 180
-    #     nmp = self.n_max_paths
-    #     out = np.empty((dvec.shape[0], 4 * nmp), dtype=np.float32)
-
-    #     out[:, 0:nmp]       = aoa_phi_rel   / 180.0
-    #     out[:, nmp:2*nmp]   = aoa_theta_rel / 180.0
-    #     out[:, 2*nmp:3*nmp] = aod_phi_rel   / 180.0
-    #     out[:, 3*nmp:4*nmp] = aod_theta_rel / 180.0
-
-    #     return out
-    
-
-    # def _inverse_transform_angles(self,
-    #     dvec: np.ndarray, angles: np.ndarray
-    # ) -> np.ndarray:
-    #     """
-    #     """
-    #     nmp = self.n_max_paths
-    #     aoa_phi_rel     = angles[:, 0:nmp]          * 180.0
-    #     aoa_theta_rel   = angles[:, nmp:2*nmp]      * 180.0
-    #     aod_phi_rel     = angles[:, 2*nmp:3*nmp]    * 180.0
-    #     aod_theta_rel   = angles[:, 3*nmp:4*nmp]    * 180.0
-
-    #     # Compute LOS angles (cartesian to polar coordinates)
-    #     _, los_aoa_phi, los_aoa_theta = cartesian_to_spherical(dvec)
-    #     _, los_aod_phi, los_aod_theta = cartesian_to_spherical(-dvec)
-
-    #     # Compute relative angles into absolute angles
-    #     nlos_aoa_phi, nlos_aoa_theta = add_angles(aoa_phi_rel, aoa_theta_rel,
-    #                                               los_aoa_phi[:, None],
-    #                                               los_aoa_theta[:, None])
-
-    #     nlos_aod_phi, nlos_aod_theta = add_angles(aod_phi_rel, aod_theta_rel,
-    #                                               los_aod_phi[:, None],
-    #                                               los_aod_theta[:, None])
-
-    #     out = np.zeros((dvec.shape[0], nmp, AngleIndex.N_ANGLES))
-    #     out[..., AngleIndex.AOA_PHI]    = nlos_aoa_phi
-    #     out[..., AngleIndex.AOA_THETA]  = nlos_aoa_theta
-    #     out[..., AngleIndex.AOD_PHI]    = nlos_aod_phi
-    #     out[..., AngleIndex.AOD_THETA]  = nlos_aod_theta
-    #     return out
-
 
     def _transform_angles(self, 
         dvec: np.ndarray, 
