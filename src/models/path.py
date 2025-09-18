@@ -138,15 +138,15 @@ class PathModel:
         
         self.model.save(self.directory)
         
-        from src.models.utils.preproc import preproc_to_param, ProcType
+        from src.models.utilities.preproc import preproc_to_param, PreprocType
         with open(self.directory / PREPROCESSOR_FN, "wb") as fp:
             pickle.dump({
                 "pathloss_scaler": preproc_to_param(self.pathloss_scaler,
-                                                    ProcType.MIN_MAX_SCALER),
+                                                    PreprocType.MIN_MAX),
                 "condition_scaler": preproc_to_param(self.condition_scaler,
-                                                     ProcType.STANDARD_SCALER),
+                                                     PreprocType.STANDARD),
                 "rx_encoder":   preproc_to_param(self.rx_encoder, 
-                                                 ProcType.ONE_HOT_ENCODER),
+                                                 PreprocType.ONE_HOT),
                 "delay_scale": float(self.delay_scale),
                 "n_max_paths": int(self.n_max_paths),
                 "max_pathloss": float(self.max_pathloss),
@@ -157,7 +157,7 @@ class PathModel:
     def load(self):
         """
         """
-        from src.models.utils.preproc import param_to_preproc, ProcType
+        from src.models.utilities.preproc import param_to_preproc, PreprocType
         path = self.directory / PREPROCESSOR_FN
         if not path.exists():
             raise FileNotFoundError("The loaded model does not exist")
@@ -166,11 +166,11 @@ class PathModel:
             params = pickle.load(fp)
         
         self.pathloss_scaler = param_to_preproc(params["pathloss_scaler"],
-                                                ProcType.MIN_MAX_SCALER)
+                                                PreprocType.MIN_MAX)
         self.condition_scaler = param_to_preproc(params["condition_scaler"],
-                                                 ProcType.STANDARD_SCALER)
+                                                 PreprocType.STANDARD)
         self.rx_encoder = param_to_preproc(params["rx_encoder"],
-                                           ProcType.ONE_HOT_ENCODER)
+                                           PreprocType.ONE_HOT)
         self.delay_scale = float(params.get("delay_scale", 1.0))
 
         # Restoring the storage values 
