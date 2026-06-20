@@ -11,7 +11,7 @@ __pycache__/
 .venv/
 
 models/
-data/datasets
+database/datasets
 
 
 # Data / Model Files to fully Ignore

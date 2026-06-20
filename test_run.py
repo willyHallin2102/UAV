@@ -11,7 +11,7 @@ print("Sionna imported successfully")
 print(sn.__version__)
 
 print("Numpy successfully installed")
-print(np.__version__)
+print(np.__version__) # Potentially problematic version to the tensorflow
 
 # Tiny tensor test (checks TF + GPU execution path)
 x = tf.random.normal([2, 3])
