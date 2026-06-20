@@ -1,0 +1,21 @@
+# Helper for avoiding uploading 3rd party libraries
+# (large and should be installed locally using install.sh)
+
+# Python Artifacts are to be Ignored
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore These Directories Altogether
+.vscode/
+.venv/
+
+models/
+data/datasets
+
+
+# Data / Model Files to fully Ignore
+*.csv
+*.pkl
+*.h5
+*.npy
