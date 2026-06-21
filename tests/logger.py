@@ -602,7 +602,7 @@ def test_file_rotation(args: argparse.Namespace):
         
         time.sleep(1.0)
         
-        log_files = list(tmp_path.glob("app.log*"))
+        log_files = list(path.glob("app.log*"))
         print(f"\tAfter more logs: {len(log_files)} files")
         
         # Should not exceed backup_count + 1 (main)
@@ -636,6 +636,7 @@ def test_console_output(args: argparse.Namespace):
         captured = stdout_capture.getvalue()
         print(f"\tCaptured: {captured[:80]}...")
         
+        # Breaks Here
         assert "Console test message" in captured, "Console output missing"
         assert "INFO" in captured, "Level missing from console output"
         
@@ -950,6 +951,8 @@ def test_integration_with_json_logs(args: argparse.Namespace):
                 print(f"\tInvalid JSON: {line[:50]}...")
         
         print(f"\tValid JSON lines: {valid_json}/{len(lines)}")
+
+        # Breaks Here
         assert valid_json == len(lines), "Some log lines are not valid JSON"
     
     print("\nIntegration test passed")
@@ -986,6 +989,8 @@ def main():
             "init", "Test logger initialization",
             test_logger_initialization, TEST_ARGS
         ),
+
+        # Doesn't work
         CommandSpec(
             "shutdown", "Test shutdown behavior",
             test_logger_shutdown, TEST_ARGS
@@ -1018,6 +1023,8 @@ def main():
             "rotation", "Test file rotation",
             test_file_rotation, TEST_ARGS
         ),
+
+        # Breaks
         CommandSpec(
             "console", "Test console output",
             test_console_output, TEST_ARGS
@@ -1026,6 +1033,7 @@ def main():
             "perf", "Performance test",
             test_performance_throughput, [*COMMON]
         ),
+
         CommandSpec(
             "concurrent", "Test concurrent logging",
             test_concurrent_logging, TEST_ARGS
@@ -1038,6 +1046,8 @@ def main():
             "errors", "Test error handling",
             test_error_handling, TEST_ARGS
         ),
+
+        # Breaks
         CommandSpec(
             "integration", "Integration test",
             test_integration_with_json_logs, TEST_ARGS
