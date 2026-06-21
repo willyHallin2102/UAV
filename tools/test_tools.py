@@ -81,7 +81,7 @@ def builder(commands: List[CommandSpec]) -> argparse.Namespace:
         p = sub.add_parser(command.name, help=command.help)
 
         for arg in command.args:
-            p.add_argument(*arg["flags"], **args["kwargs"])
+            p.add_argument(*arg["flags"], **arg["kwargs"])
         
         p.set_defaults(_handler=command.handler)
     

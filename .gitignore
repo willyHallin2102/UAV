@@ -19,3 +19,6 @@ database/datasets
 *.pkl
 *.h5
 *.npy
+
+# Do not upload any logs, not essential 
+*.log
