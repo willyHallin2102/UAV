@@ -10,13 +10,14 @@ import sys
 import time
 
 from contextlib import contextmanager
+from datetime import datetime
 from enum import Enum
 from pathlib import Path
 from queue import Queue
 from threading import Lock
 from typing import Any, Dict, List
 
-from logging.handlers import QueueHandler, QueueListener,RotatingFileHandler
+from logging.handlers import QueueHandler, QueueListener, RotatingFileHandler
 from logs.formatters import JsonFormatter, ConsoleFormatter
 
 
@@ -61,7 +62,7 @@ class Logger:
     def __init__(self,
         name: str, level: LogLevel = LogLevel.INFO, use_console: bool = True,
         to_disk: bool = True, max_bytes: int = 10 * 1024 * 1024,
-        backup_count: int = 5, directory: str | Path = "logs"
+        backup_count: int = 5, directory: str | Path | None = None
     ):
         """
             Initialize Logger Instance
@@ -76,7 +77,12 @@ class Logger:
 
         self.name = name
 
-        self.directory = Path(directory)
+        # Set directory relative to this file's parent
+        if directory is None:
+            self.directory = Path(__file__).parent / "records"
+        else:
+            self.directory = Path(directory)
+            
         self.directory.mkdir(parents=True, exist_ok=True)
 
         self.logger = logging.getLogger(name)
@@ -114,7 +120,9 @@ class Logger:
             handlers = []
 
             if to_disk:
-                logfile = directory / "app.log"
+                # Create timestamped log filename for this run
+                timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+                logfile = directory / f"{timestamp}.log"
 
                 file_handler = RotatingFileHandler(
                     filename=logfile,
